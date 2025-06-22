@@ -2,7 +2,7 @@ import { use, useState } from "react";
 
 let style = {border : "2px solid white" ,padding:"2.5rem",borderRadius:"1rem"}
 
-function CommentForm() {
+function CommentForm({addComment}) {
   let [data,setData] = useState({
     username:"",
     comments:"",
@@ -18,7 +18,14 @@ function CommentForm() {
 
   function handleSubmit(event){
     event.preventDefault()
-    console.log(data)
+    console.log(data);
+    addComment(data);
+
+    setData({
+        username:"",
+        comments:"",
+        ratings:5
+    })
   }
 
   return (
