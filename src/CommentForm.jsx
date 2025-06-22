@@ -1,74 +1,89 @@
-import { use, useState } from "react";
+import { useFormik } from "formik";
 
-let style = {border : "2px solid white" ,padding:"2.5rem",borderRadius:"1rem"}
+let style = {
+  border: "2px solid white",
+  padding: "2.5rem",
+  borderRadius: "1rem",
+};
 
-function CommentForm({addComment}) {
-  let [data,setData] = useState({
-    username:"",
-    comments:"",
-    ratings: ""
-  })
-  
-  function handleCommentsData(event){
-
-    setData((prevData)=>{
-        return {...prevData,[event.target.name] : event.target.value}
-    })
+function CommentForm({ addComment }) {
+  // Validation function
+  function validate(values) {
+    const errors = {};
+    if (!values.username) {
+      errors.username = "Required";
+    }
+    if (!values.comments) {
+      errors.comments = "Required";
+    }
+    if (!values.ratings || values.ratings < 0 || values.ratings > 5) {
+      errors.ratings = "Rating must be between 0 and 5";
+    }
+    return errors;
   }
 
-  function handleSubmit(event){
-    event.preventDefault()
-    console.log(data);
-    addComment(data);
-
-    setData({
-        username:"",
-        comments:"",
-        ratings:5
-    })
-  }
+  // Formik setup
+  const formik = useFormik({
+    initialValues: {
+      username: "@Pg",
+      comments: "Good",
+      ratings: "5",
+    },
+    validate,
+    onSubmit: (values, { resetForm }) => {
+      console.log(values);
+      addComment(values);
+      resetForm(); // Reset form after submission
+    },
+  });
 
   return (
     <>
       <h4>Comment Form</h4>
-      <form onSubmit={handleSubmit} style={style}>
-        <label htmlFor="username">Username : </label>
-        <input 
-        type="text" 
-        placeholder="enter username" 
-        id="username"
-        name="username"
-        value={data.username}
-        onChange={handleCommentsData}
+      <form onSubmit={formik.handleSubmit} style={style}>
+        <label htmlFor="username">Username: </label>
+        <input
+          type="text"
+          placeholder="Enter username"
+          id="username"
+          name="username"
+          value={formik.values.username}
+          onChange={formik.handleChange}
         />
+        <br />
+        {formik.errors.username && <small>{formik.errors.username}</small>}
+        <br />
+        <br />
 
-        <br /><br />
-
-        <label htmlFor="comments">Comments : </label>
-        <textarea  
-        placeholder="enter Comment" 
-        id="comments"
-        name="comments"
-        value={data.comments}
-        onChange={handleCommentsData}>
-        </textarea>       
-     
-        <br /><br />
-
-        <label htmlFor="ratings">Ratings : </label>
-        <input 
-        type="number"  
-        id="ratings"
-        name="ratings"
-        min={0}
-        max={5}
-        value={data.ratings}
-        onChange={handleCommentsData}
+        <label htmlFor="comments">Comments: </label>
+        <textarea
+          placeholder="Enter Comment"
+          id="comments"
+          name="comments"
+          value={formik.values.comments}
+          onChange={formik.handleChange}
         />
-        
-        <br /><br />
+        <br />
+        {formik.errors.comments && <small>{formik.errors.comments}</small>}
+        <br />
+        <br />
 
-        <button>Send Data</button>
+        <label htmlFor="ratings">Ratings: </label>
+        <input
+          type="number"
+          id="ratings"
+          name="ratings"
+          min={0}
+          max={5}
+          value={formik.values.ratings}
+          onChange={formik.handleChange}
+        />
+        <br />
+        {formik.errors.ratings && <small>{formik.errors.ratings}</small>}
+        <br />
+        <br />
+
+        <button type="submit">Send Data</button>
       </form>
     </>
   );
